@@ -6,7 +6,10 @@ public class WaveManager : MonoBehaviour
     [Header("Спавн")]
     public GameObject enemyPrefab;          // Prefab врага
     public Transform[] spawnPoints;          // Точки спавна на арене
-    public int enemiesPerWave = 5;           // Врагов в волне
+    public int enemiesPerWave = 5;              // Врагов в волне
+    public float enemyWait = 1f; //Время задержки между спавнами
+    public float spawnCheckRadius = 0.6f; // Радиус проверки занятости точки спавна
+    public LayerMask spawnCheckMask; // Какие слои считать занятыми (например, слой врагов)
     public float timeBetweenWaves = 3f;      // Пауза между волнами
 
     [Header("Таймер босса")]
@@ -52,9 +55,30 @@ public class WaveManager : MonoBehaviour
         int count = Mathf.RoundToInt(enemiesPerWave * waveDifficulty);
         for (int i = 0; i < count; i++)
         {
+            // Выбираем случайную точку спавна и проверяем, свободна ли она
             Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+            int attempts = 0;
+            const int maxAttempts = 6;
+            // Пытаемся найти свободную точку среди spawnPoints
+            while (Physics.CheckSphere(spawnPoint.position, spawnCheckRadius, spawnCheckMask) && attempts < maxAttempts)
+            {
+                spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+                attempts++;
+            }
+
+            // Если после попыток точка всё ещё занята, ждём небольшой интервал и пробуем снова
+            int waitLoops = 0;
+            while (Physics.CheckSphere(spawnPoint.position, spawnCheckRadius, spawnCheckMask) && waitLoops < 10)
+            {
+                yield return new WaitForSeconds(enemyWait);
+                waitLoops++;
+            }
+
             Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
             enemiesAlive++;
+
+            // Задержка между созданием противников, чтобы они не появлялись одновременно
+            yield return new WaitForSeconds(enemyWait);
         }
     }
 
