@@ -733,7 +733,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.52527404, y: 0.02673933}
+  m_Offset: {x: 1.4753486, y: 0.08519089}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -743,7 +743,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.0741184, y: 1.702425}
+  m_Size: {x: 3.1613128, y: 3.9235852}
   m_EdgeRadius: 0
 --- !u!1 &1597348170
 GameObject:
@@ -781,6 +781,9 @@ MonoBehaviour:
   - {fileID: 1151838952}
   - {fileID: 1703278950}
   enemiesPerWave: 5
+  enemyWait: 1
+  spawnCheckRadius: 0.6
+  spawnOffsetRadius: 0.5
   timeBetweenWaves: 3
   bossTimer: 120
   fastClearThreshold: 0.7

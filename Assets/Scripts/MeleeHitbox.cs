@@ -9,7 +9,7 @@ public class MeleeHitbox : MonoBehaviour
     {
         if (other.CompareTag("Enemy"))
         {
-            // позже здесь будет other.GetComponent<EnemyStats>().TakeDamage(damage);
+            other.GetComponent<EnemyStats>().TakeDamage(damage);
             Debug.Log("Hit: " + other.name);
         }
     }

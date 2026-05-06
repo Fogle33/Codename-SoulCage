@@ -8,8 +8,8 @@ public class WaveManager : MonoBehaviour
     public Transform[] spawnPoints;          // Точки спавна на арене
     public int enemiesPerWave = 5;              // Врагов в волне
     public float enemyWait = 1f; //Время задержки между спавнами
-    public float spawnCheckRadius = 0.6f; // Радиус проверки занятости точки спавна
-    public LayerMask spawnCheckMask; // Какие слои считать занятыми (например, слой врагов)
+    public float spawnCheckRadius = 0.6f; // Радиус, по которому считаем, что предыдущий юнит всё ещё занимает точку
+    public float spawnOffsetRadius = 0.5f; // Максимальный небольшой оффсет, если все точки заняты
     public float timeBetweenWaves = 3f;      // Пауза между волнами
 
     [Header("Таймер босса")]
@@ -26,10 +26,26 @@ public class WaveManager : MonoBehaviour
     private int currentWave = 0;
     private int enemiesAlive = 0;
     private float waveStartTime;
+    private GameObject[] lastSpawned; // Храним последний объект, заспавненный в каждой точке
+
+    // Очищаем ссылку на последний заспавненный объект в точке, когда он умирает
+    public void NotifyEnemyDestroyed(GameObject enemy)
+    {
+        if (lastSpawned == null) return;
+        for (int i = 0; i < lastSpawned.Length; i++)
+        {
+            if (lastSpawned[i] == enemy)
+                lastSpawned[i] = null;
+        }
+    }
 
     void Start()
     {
         currentTimer = bossTimer;
+        // Инициализируем массив последних заспавненных объектов по точкам
+        if (spawnPoints != null)
+            lastSpawned = new GameObject[spawnPoints.Length];
+
         StartCoroutine(SpawnWave());
     }
 
@@ -51,34 +67,60 @@ public class WaveManager : MonoBehaviour
         currentWave++;
         waveStartTime = Time.time;
 
-        // Спавним врагов в случайных точках
+        // Спавним врагов в случайных точках, стараясь не спавнить поверх предыдущего
         int count = Mathf.RoundToInt(enemiesPerWave * waveDifficulty);
         for (int i = 0; i < count; i++)
         {
-            // Выбираем случайную точку спавна и проверяем, свободна ли она
-            Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+            int maxAttempts = 10;
             int attempts = 0;
-            const int maxAttempts = 6;
-            // Пытаемся найти свободную точку среди spawnPoints
-            while (Physics.CheckSphere(spawnPoint.position, spawnCheckRadius, spawnCheckMask) && attempts < maxAttempts)
+            int index = Random.Range(0, spawnPoints.Length);
+            bool occupied = false;
+
+            // Пытаемся найти точку, где предыдущий юнит отсутствует или разрушен
+            while (attempts < maxAttempts)
             {
-                spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+                occupied = false;
+                if (lastSpawned != null && index >= 0 && index < lastSpawned.Length)
+                {
+                    var prev = lastSpawned[index];
+                    if (prev != null)
+                    {
+                        if (prev.activeInHierarchy)
+                        {
+                            float dist = Vector3.Distance(prev.transform.position, spawnPoints[index].position);
+                            if (dist < spawnCheckRadius) occupied = true;
+                        }
+                        else
+                        {
+                            // объект деактивирован/уничтожен — освобождаем ссылку
+                            lastSpawned[index] = null;
+                        }
+                    }
+                }
+
+                if (!occupied) break;
+
+                index = Random.Range(0, spawnPoints.Length);
                 attempts++;
             }
 
-            // Если после попыток точка всё ещё занята, ждём небольшой интервал и пробуем снова
-            int waitLoops = 0;
-            while (Physics.CheckSphere(spawnPoint.position, spawnCheckRadius, spawnCheckMask) && waitLoops < 10)
+            Vector3 spawnPos = spawnPoints[index].position;
+
+            // Если все попытки не дали свободной точки, применяем небольшой оффсет, чтобы не спавнить в точности в том же месте
+            if (occupied)
             {
-                yield return new WaitForSeconds(enemyWait);
-                waitLoops++;
+                Vector3 offset = Random.insideUnitSphere * spawnOffsetRadius;
+                offset.y = 0f;
+                spawnPos += offset;
             }
 
-            Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
+            var enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+            if (lastSpawned != null && index >= 0 && index < lastSpawned.Length)
+                lastSpawned[index] = enemy;
+
             enemiesAlive++;
 
-            // Задержка между созданием противников, чтобы они не появлялись одновременно
-            yield return new WaitForSeconds(enemyWait);
+            yield return null; // минимальная пауза, чтобы не нагружать фреймы
         }
     }
 
