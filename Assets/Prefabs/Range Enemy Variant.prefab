@@ -1,0 +1,106 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &8291632110954989342
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 160725904258300702, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_Icon
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 160725904258300702, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_Name
+      value: Range Enemy Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 780706990598135764, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: maxHP
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 4502582924963126133, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: damage
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5938179557459350228, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_Color.b
+      value: 0.9306717
+      objectReference: {fileID: 0}
+    - target: {fileID: 5938179557459350228, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6620920104734483276, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.31939
+      objectReference: {fileID: 0}
+    - target: {fileID: 6620920104734483276, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.22089
+      objectReference: {fileID: 0}
+    - target: {fileID: 6620920104734483276, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6620920104734483276, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6620920104734483276, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6620920104734483276, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6620920104734483276, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6620920104734483276, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6620920104734483276, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6620920104734483276, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 4502582924963126133, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 160725904258300702, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2102846096369019648}
+  m_SourcePrefab: {fileID: 100100000, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+--- !u!1 &8154550127557950464 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 160725904258300702, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+  m_PrefabInstance: {fileID: 8291632110954989342}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2102846096369019648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8154550127557950464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b700bfede360fc4ba57975c88f7227f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RangedEnemyAI
+  moveSpeed: 2
+  attackRange: 6
+  fleeRange: 3
+  damage: 15
+  attackCooldown: 2
+  projectilePrefab: {fileID: 0}

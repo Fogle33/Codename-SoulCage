@@ -5,8 +5,11 @@ public class WaveManager : MonoBehaviour
 {
     [Header("Спавн")]
     public GameObject enemyPrefab;          // Prefab врага
+    public GameObject bossPrefab;           // Prefab босса
     public Transform[] spawnPoints;          // Точки спавна на арене
+    public Transform bossSpawnPoint;       // Точка спавна босса
     public int enemiesPerWave = 5;              // Врагов в волне
+    public int wavesMax = 10;                   // Всего волн
     public float enemyWait = 1f; //Время задержки между спавнами
     public float spawnCheckRadius = 0.6f; // Радиус, по которому считаем, что предыдущий юнит всё ещё занимает точку
     public float spawnOffsetRadius = 0.5f; // Максимальный небольшой оффсет, если все точки заняты
@@ -16,7 +19,7 @@ public class WaveManager : MonoBehaviour
     public float bossTimer = 120f;           // Секунд до появления босса
     private float currentTimer;
     private bool bossSpawned = false;
-
+    public ArenaUI UI;
     [Header("Динамика арены")]
     public float fastClearThreshold = 0.7f;  // 70% времени волны = быстрая зачистка
     public int bonusSoulsOnFastClear = 5;
@@ -46,6 +49,9 @@ public class WaveManager : MonoBehaviour
         if (spawnPoints != null)
             lastSpawned = new GameObject[spawnPoints.Length];
 
+        // Обновляем UI по волнам в начале
+        if (UI != null) UI.UpdateWaves(currentWave, wavesMax);
+
         StartCoroutine(SpawnWave());
     }
 
@@ -55,6 +61,7 @@ public class WaveManager : MonoBehaviour
         if (!bossSpawned)
         {
             currentTimer -= Time.deltaTime;
+            UI.UpdateTimer(currentTimer);
             // Позже здесь будет: UIManager.Instance.UpdateTimer(currentTimer)
             if (currentTimer <= 0)
                 SpawnBoss();
@@ -65,8 +72,15 @@ public class WaveManager : MonoBehaviour
     {
         yield return new WaitForSeconds(timeBetweenWaves);
         currentWave++;
+        UI.UpdateWaves(currentWave, wavesMax);
         waveStartTime = Time.time;
 
+        // Если это последняя волна — вызываем появление босса и не спавним обычных врагов
+        if (currentWave >= wavesMax && !bossSpawned)
+        {
+            SpawnBoss();
+            yield break;
+        }
         // Спавним врагов в случайных точках, стараясь не спавнить поверх предыдущего
         int count = Mathf.RoundToInt(enemiesPerWave * waveDifficulty);
         for (int i = 0; i < count; i++)
@@ -153,7 +167,16 @@ public class WaveManager : MonoBehaviour
     {
         bossSpawned = true;
         Debug.Log("Босс появился!");
-        // Позже: Instantiate(bossPrefab, ...)
+
+        // Обнуляем таймер и скрываем его в UI
+        currentTimer = 0f;
+        if (UI != null) UI.UpdateTimer(0f);
+
+        // Инстанцируем босса в указанной точке
+        if (bossPrefab != null && bossSpawnPoint != null)
+        {
+            Instantiate(bossPrefab, bossSpawnPoint.position, bossSpawnPoint.rotation);
+        }
     }
 
     // Добавь этот вызов в EnemyStats.Die()

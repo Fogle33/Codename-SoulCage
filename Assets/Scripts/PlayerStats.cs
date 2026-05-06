@@ -4,6 +4,7 @@ public class PlayerStats : MonoBehaviour
 {
     public float maxHP = 100f;
     public float currentHP;
+    public ArenaUI UI;
 
     void Awake()
     {
@@ -13,7 +14,7 @@ public class PlayerStats : MonoBehaviour
     public void TakeDamage(float amount)
     {
         currentHP -= amount;
-        // Позже здесь будет обновление UI
+        UI.UpdateHP(currentHP, maxHP);
         if (currentHP <= 0)
             Die();
     }
@@ -21,6 +22,7 @@ public class PlayerStats : MonoBehaviour
     public void Heal(float amount)
     {
         currentHP = Mathf.Min(currentHP + amount, maxHP); // Не превышаем максимум
+        UI.UpdateHP(currentHP, maxHP);
     }
 
     void Die()
