@@ -6,7 +6,9 @@ TagManager:
   tags:
   - Enemy
   - Debug
-  - Boss
+  - Corner
+  - SpawnPoint
+  - BossSpawn
   layers:
   - Default
   - TransparentFX

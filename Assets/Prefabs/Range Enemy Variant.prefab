@@ -103,4 +103,4 @@ MonoBehaviour:
   fleeRange: 3
   damage: 15
   attackCooldown: 2
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 9136471876832191032, guid: cde53ab351e797147aa1d24ea197432e, type: 3}

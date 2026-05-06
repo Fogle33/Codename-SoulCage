@@ -80,8 +80,35 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4502582924963126133, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 160725904258300702, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5309759571691908517}
   m_SourcePrefab: {fileID: 100100000, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+--- !u!1 &2725887462404945135 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 160725904258300702, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+  m_PrefabInstance: {fileID: 2877606028761010161}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5309759571691908517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2725887462404945135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eabbaeac0d2b91240a1433ca16b5b977, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TankEnemyAI
+  moveSpeed: 1.5
+  damage: 20
+  attackCooldown: 2
+  chargeSpeed: 5
+  chargeDistance: 4
+  chargeDuration: 0.4

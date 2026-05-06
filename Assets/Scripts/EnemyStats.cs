@@ -4,31 +4,28 @@ public class EnemyStats : MonoBehaviour
 {
     public float maxHP = 30f;
     public float currentHP;
-    public int soulsOnDeath = 1; // Сколько душ даёт при смерти
+    public int soulsOnDeath = 1;
+    private WaveManager waveManager;
 
     void Start()
     {
         currentHP = maxHP;
+        waveManager = FindObjectOfType<WaveManager>();
     }
 
     public void TakeDamage(float amount)
     {
         currentHP -= amount;
-        if (currentHP <= 0)
-            Die();
+        if (currentHP <= 0) Die();
     }
 
     void Die()
     {
-        // Позже здесь будет: SoulManager.Instance.AddSouls(soulsOnDeath)
-        // Уведомляем WaveManager о смерти, чтобы он уменьшил счётчик и очистил ссылку lastSpawned
-        WaveManager wm = FindObjectOfType<WaveManager>();
-        if (wm != null)
+        if (waveManager != null)
         {
-            wm.OnEnemyDied();
-            wm.NotifyEnemyDestroyed(gameObject);
+            waveManager.OnEnemyDied();
+            waveManager.NotifyEnemyDestroyed(gameObject);
         }
-
         Destroy(gameObject);
     }
 }
