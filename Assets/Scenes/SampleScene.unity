@@ -786,9 +786,16 @@ MonoBehaviour:
   spawnOffsetRadius: 0.5
   timeBetweenWaves: 3
   bossTimer: 120
+  currentTimer: 0
+  bossSpawned: 0
   fastClearThreshold: 0.7
   bonusSoulsOnFastClear: 5
   waveStrengthMultiplier: 1.1
+  waveDifficulty: 1
+  currentWave: 0
+  enemiesAlive: 0
+  waveStartTime: 0
+  lastSpawned: []
 --- !u!4 &1597348172
 Transform:
   m_ObjectHideFlags: 0
