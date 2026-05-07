@@ -9,6 +9,7 @@ TagManager:
   - Corner
   - SpawnPoint
   - BossSpawn
+  - Wall
   layers:
   - Default
   - TransparentFX
