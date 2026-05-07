@@ -3,14 +3,19 @@ using System.Collections;
 
 public class AbsorberBossAI : MonoBehaviour
 {
+    [Header("Движение")]
     public float moveSpeed = 1.5f;
-    public float preferredDistance = 5f;
+    public float fleeDistance = 4f;
+    public float wanderRadius = 2f;
+    public float wanderInterval = 2f;
+
+    [Header("Поглощение")]
     public float absorbRadius = 3f;
     public float absorbInterval = 2f;
     public float healPerAbsorb = 20f;
 
     [Header("Field Attack")]
-    public GameObject fieldPrefab; // Префаб → Префаб, заполняй в инспекторе
+    public GameObject fieldPrefab;
     public float fieldCooldown = 6f;
     public float preAttackDelay = 1.2f;
     public float fieldDuration = 2f;
@@ -27,6 +32,8 @@ public class AbsorberBossAI : MonoBehaviour
     private Rigidbody2D rb;
     private EnemyStats stats;
     private Transform[] corners;
+    private Vector2 wanderTarget;
+    private float lastWanderTime;
     private float lastAbsorbTime;
     private float lastFieldTime = -Mathf.Infinity;
     private float lastDashTime = -Mathf.Infinity;
@@ -39,13 +46,15 @@ public class AbsorberBossAI : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         stats = GetComponent<EnemyStats>();
+
         player = GameObject.FindGameObjectWithTag("Player").transform;
 
-        // Находим углы по тегу Corner
         GameObject[] cornerObjects = GameObject.FindGameObjectsWithTag("Corner");
         corners = new Transform[cornerObjects.Length];
         for (int i = 0; i < cornerObjects.Length; i++)
             corners[i] = cornerObjects[i].transform;
+
+        wanderTarget = rb.position;
     }
 
     void FixedUpdate()
@@ -54,15 +63,22 @@ public class AbsorberBossAI : MonoBehaviour
 
         float dist = Vector2.Distance(transform.position, player.position);
 
-        if (dist < preferredDistance - 0.5f)
+        if (dist < fleeDistance)
         {
             Vector2 away = ((Vector2)transform.position - (Vector2)player.position).normalized;
             rb.MovePosition(rb.position + away * moveSpeed * Time.fixedDeltaTime);
         }
-        else if (dist > preferredDistance + 0.5f)
+        else
         {
-            Vector2 toward = ((Vector2)player.position - rb.position).normalized;
-            rb.MovePosition(rb.position + toward * moveSpeed * Time.fixedDeltaTime);
+            if (Time.time >= lastWanderTime + wanderInterval ||
+                Vector2.Distance(rb.position, wanderTarget) < 0.2f)
+            {
+                wanderTarget = rb.position + Random.insideUnitCircle * wanderRadius;
+                lastWanderTime = Time.time;
+            }
+
+            Vector2 wanderDir = (wanderTarget - rb.position).normalized;
+            rb.MovePosition(rb.position + wanderDir * (moveSpeed * 0.5f) * Time.fixedDeltaTime);
         }
     }
 
@@ -91,7 +107,6 @@ public class AbsorberBossAI : MonoBehaviour
     {
         isPhase2 = true;
         moveSpeed *= phase2MoveSpeedMultiplier;
-        Debug.Log("Boss Phase 2!");
     }
 
     void AbsorbNearbyTrash()
@@ -117,19 +132,26 @@ public class AbsorberBossAI : MonoBehaviour
 
         if (fieldPrefab != null && player != null)
         {
-            currentField = Instantiate(fieldPrefab, player.position, Quaternion.identity);
+            Vector3 spawnPos = player.position;
+            currentField = Instantiate(fieldPrefab, spawnPos, Quaternion.identity);
+            currentField.transform.SetParent(null);
             FieldAttack fa = currentField.GetComponent<FieldAttack>();
             if (fa != null) fa.boss = this;
         }
 
-        float timer = 0f;
-        while (timer < fieldDuration)
-        {
-            timer += Time.deltaTime;
-            yield return null;
-        }
+        yield return new WaitForSeconds(fieldDuration);
 
-        bool hit = playerInField;
+        bool hitPlayer = false;
+        if (currentField != null)
+        {
+            Collider2D col = currentField.GetComponent<Collider2D>();
+            if (col != null && player != null)
+            {
+                Collider2D playerCol = player.GetComponent<Collider2D>();
+                if (playerCol != null)
+                    hitPlayer = col.bounds.Intersects(playerCol.bounds);
+            }
+        }
 
         if (currentField != null)
         {
@@ -137,7 +159,7 @@ public class AbsorberBossAI : MonoBehaviour
             currentField = null;
         }
 
-        if (hit && player != null)
+        if (hitPlayer)
             player.GetComponent<PlayerStats>()?.TakeDamage(fieldDamage);
 
         lastFieldTime = Time.time;
@@ -176,6 +198,6 @@ public class AbsorberBossAI : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, absorbRadius);
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, preferredDistance);
+        Gizmos.DrawWireSphere(transform.position, fleeDistance);
     }
 }

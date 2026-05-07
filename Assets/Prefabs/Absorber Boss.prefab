@@ -114,6 +114,7 @@ MonoBehaviour:
   maxHP: 150
   currentHP: 0
   soulsOnDeath: 1
+  isBoss: 1
 --- !u!114 &6635125024426507239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,11 +140,6 @@ MonoBehaviour:
   phase2HPPercent: 0.4
   phase2FieldCooldown: 3
   phase2MoveSpeedMultiplier: 1.3
-  corners:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   playerInField: 0
 --- !u!212 &1680067205224388381
 SpriteRenderer:

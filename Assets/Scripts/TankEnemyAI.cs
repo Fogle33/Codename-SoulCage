@@ -4,8 +4,8 @@ using System.Collections;
 public class TankEnemyAI : MonoBehaviour
 {
     public float moveSpeed = 1.5f;
-    public float damage = 20f;
-    public float attackCooldown = 2f;
+    public float damage = 15f;
+    public float attackCooldown = 1.5f;
     public float chargeSpeed = 5f;
     public float chargeDistance = 4f;
     public float chargeDuration = 0.4f;
@@ -53,7 +53,13 @@ public class TankEnemyAI : MonoBehaviour
 
     void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player") && isCharging)
-            collision.gameObject.GetComponent<PlayerStats>()?.TakeDamage(damage);
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            if (Time.time >= lastAttackTime + attackCooldown)
+            {
+                collision.gameObject.GetComponent<PlayerStats>()?.TakeDamage(damage);
+                lastAttackTime = Time.time;
+            }
+        }
     }
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 public class EnemyAI : MonoBehaviour
 {
     public float moveSpeed = 2f;
-    public float damage = 10f;
+    public float damage = 5f;
     public float attackCooldown = 1f;
 
     private Transform player;
