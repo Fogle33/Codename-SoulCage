@@ -13,7 +13,7 @@ public class WaveManager : MonoBehaviour
     public float enemyWait = 1f;
     public float spawnCheckRadius = 0.6f;
     public float spawnOffsetRadius = 0.5f;
-    public float timeBetweenWaves = 3f;
+    private float timeBetweenWaves;
 
     [Header("Таймер босса")]
     public float bossTimer = 120f;
@@ -41,6 +41,7 @@ public class WaveManager : MonoBehaviour
 
     void Start()
     {
+        timeBetweenWaves = bossTimer / wavesMax;
         currentTimer = bossTimer;
         if (spawnPoints != null)
             lastSpawned = new GameObject[spawnPoints.Length];
