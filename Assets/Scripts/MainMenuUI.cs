@@ -6,7 +6,7 @@ public class MainMenuUI : MonoBehaviour
     public void StartGame()
     {
         Debug.Log("Clicked Start Game") ;
-        SceneManager.LoadScene("Arena");
+        SceneManager.LoadScene("Hub");
     }
 
     public void QuitGame()
