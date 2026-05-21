@@ -24,6 +24,7 @@ public class DeathScreen : MonoBehaviour
     void Respawn()
     {
         Time.timeScale = 1f;
+        PlayerUpgrades.Reset();
         FindObjectOfType<SceneTransition>()?.LoadScene("Hub");
     }
 }

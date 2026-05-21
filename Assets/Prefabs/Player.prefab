@@ -532,4 +532,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff5125d709aec184e8d0a525e3c30185, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeleeHitbox
-  damage: 10
+  damage: 20
+  healPercent: 0.01

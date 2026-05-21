@@ -14,6 +14,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Arena.unity
     guid: b0e5453965948a84188aa10d0916a268
+  - enabled: 1
+    path: Assets/Scenes/PurchaseScreen.unity
+    guid: 1cc1e453b51c4e4448489fd770c1dedf
+  - enabled: 1
+    path: Assets/Scenes/Arena2.unity
+    guid: 253811bbe40a6184bbb80ab5b55e92a2
+  - enabled: 1
+    path: Assets/Scenes/LastLevel.unity
+    guid: f884b1ccc1992c1468505a88000dfcac
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

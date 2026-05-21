@@ -11,7 +11,7 @@ public class PlayerStats : MonoBehaviour
         currentHP = maxHP;
         if (PlayerUpgrades.HealOnNextSpawn)
         {
-            currentHP = maxHP;
+            currentHP = Mathf.Min(currentHP + maxHP * PlayerUpgrades.HealAmount, maxHP);
             PlayerUpgrades.HealOnNextSpawn = false;
         }
         ui = FindObjectOfType<ArenaUI>();

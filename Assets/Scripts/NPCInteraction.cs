@@ -44,12 +44,26 @@ public class NPCInteraction : MonoBehaviour
     {
         dialogueOpen = true;
         InteractionPrompt.Instance?.Hide();
+
+        // Отключаем управление
+        var movement = FindObjectOfType<PlayerMovement>();
+        var combat = FindObjectOfType<PlayerCombat>();
+        if (movement != null) movement.enabled = false;
+        if (combat != null) combat.enabled = false;
+
         DialogueUI.Instance?.Open(speakerName, dialogueLines, OnDialogueClosed);
     }
 
     void OnDialogueClosed()
     {
         dialogueOpen = false;
+
+        // Включаем управление
+        var movement = FindObjectOfType<PlayerMovement>();
+        var combat = FindObjectOfType<PlayerCombat>();
+        if (movement != null) movement.enabled = true;
+        if (combat != null) combat.enabled = true;
+
         if (playerInRange)
             InteractionPrompt.Instance?.Show(promptText);
     }

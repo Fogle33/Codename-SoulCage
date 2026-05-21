@@ -8,10 +8,14 @@ public class SceneTransition : MonoBehaviour
     public Image fadeImage;
     public float fadeDuration = 1f;
 
-    void Start()
-    {
-        StartCoroutine(FadeOut()); // ← теперь метод существует
-    }
+
+    
+        void Start()
+        {
+            Time.timeScale = 1f;
+            StartCoroutine(FadeOut());
+        }
+
 
     public void LoadScene(string sceneName)
     {
@@ -43,7 +47,7 @@ public class SceneTransition : MonoBehaviour
 
         while (t < fadeDuration)
         {
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime; // ← было Time.deltaTime
             float alpha = Mathf.Lerp(from, to, t / fadeDuration);
             fadeImage.color = new Color(c.r, c.g, c.b, alpha);
             yield return null;

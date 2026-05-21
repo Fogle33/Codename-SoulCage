@@ -23,18 +23,14 @@ public class PlayerCombat : MonoBehaviour
             return Mathf.Clamp01(cooldownTimer / attackCooldown);
         }
     }
+    void OnEnable()
+    {
+        isDisabled = false;
+    }
 
     void Update()
     {
-        mousePos = Mouse.current.position.ReadValue();
-        Vector3 worldMouse = Camera.main.ScreenToWorldPoint(mousePos);
-        worldMouse.z = 0f;
-
-        Vector2 direction = ((Vector2)worldMouse - (Vector2)transform.position).normalized;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        meleeHitbox.transform.rotation = Quaternion.Euler(0f, 0f, angle);
-        meleeHitbox.transform.localPosition = direction * 0.8f;
-
+        // cooldown тикает всегда
         if (!canAttack && !isAttacking)
         {
             cooldownTimer -= Time.unscaledDeltaTime;
@@ -44,6 +40,17 @@ public class PlayerCombat : MonoBehaviour
                 canAttack = true;
             }
         }
+
+        if (isAttacking) return; // только хитбокс замораживаем
+
+        mousePos = Mouse.current.position.ReadValue();
+        Vector3 worldMouse = Camera.main.ScreenToWorldPoint(mousePos);
+        worldMouse.z = 0f;
+
+        Vector2 direction = ((Vector2)worldMouse - (Vector2)transform.position).normalized;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        meleeHitbox.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        meleeHitbox.transform.localPosition = direction * 0.8f;
     }
 
     public void Attack(InputAction.CallbackContext context)

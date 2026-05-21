@@ -49,7 +49,8 @@ public class AbsorberBossAI : MonoBehaviour
     private bool isDashing = false;
     private bool isPhase2 = false;
     private GameObject currentField;
-
+    private float fleeExitTime = -999f;
+    public float reactCooldown = 1.5f;
     public void OnEnterCorner(Transform corner) { inCorner = true; currentCorner = corner; }
     public void OnExitCorner() { inCorner = false; currentCorner = null; }
 
@@ -72,7 +73,16 @@ public class AbsorberBossAI : MonoBehaviour
         if (player == null || isDashing) return;
 
         float dist = Vector2.Distance(rb.position, player.position);
+        bool wasNear = playerNear;
         playerNear = dist < fleeDistance;
+
+        // Вышел из зоны — запоминаем время
+        if (wasNear && !playerNear)
+            fleeExitTime = Time.time;
+
+        // Cooldown после выхода — не реагируем сразу
+        bool canReact = Time.time >= fleeExitTime + reactCooldown;
+        bool shouldFlee = playerNear && canReact;
 
         if (playerNear && !inCorner)
         {

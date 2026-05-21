@@ -7,11 +7,14 @@ public class RangedEnemyAI : MonoBehaviour
     public float fleeRange = 3f;
     public float damage = 15f;
     public float attackCooldown = 2f;
-    public GameObject projectilePrefab; // Префаб → Префаб, заполняй в инспекторе
+    public GameObject projectilePrefab;
+    public float reactCooldown = 1f;
 
     private Transform player;
     private Rigidbody2D rb;
     private float lastAttackTime;
+    private float fleeExitTime = -999f;
+    private bool wasFleeing = false;
 
     void Start()
     {
@@ -24,16 +27,26 @@ public class RangedEnemyAI : MonoBehaviour
         if (player == null) return;
         float distance = Vector2.Distance(transform.position, player.position);
 
-        if (distance < fleeRange)
+        bool isFleeing = distance < fleeRange;
+
+        if (wasFleeing && !isFleeing)
+            fleeExitTime = Time.time;
+
+        wasFleeing = isFleeing;
+
+        bool cooldownActive = Time.time < fleeExitTime + reactCooldown;
+
+        if (isFleeing && !cooldownActive)
         {
             Vector2 fleeDir = ((Vector2)transform.position - (Vector2)player.position).normalized;
             rb.MovePosition(rb.position + fleeDir * moveSpeed * Time.fixedDeltaTime);
         }
-        else if (distance > attackRange)
+        else if (distance > attackRange && !cooldownActive)
         {
             Vector2 dir = ((Vector2)player.position - rb.position).normalized;
             rb.MovePosition(rb.position + dir * moveSpeed * Time.fixedDeltaTime);
         }
+        // cooldownActive — просто стоит на месте
     }
 
     void Update()

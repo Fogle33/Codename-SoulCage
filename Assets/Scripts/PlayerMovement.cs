@@ -29,7 +29,15 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        isDashing = false;
+        canDash = true;
+        cooldownTimer = 0f;
+        moveInput = Vector2.zero;
         moveSpeed += PlayerUpgrades.SpeedBonus;
+    }
+    void OnDisable()
+    {
+        if (rb != null) rb.linearVelocity = Vector2.zero;
     }
 
     void Update()
@@ -67,13 +75,13 @@ public class PlayerMovement : MonoBehaviour
         canDash = false;
 
         Vector2 dashDirection = lastMoveDirection;
-
         float timer = 0f;
+
         while (timer < dashDuration)
         {
             rb.linearVelocity = dashDirection * dashSpeed;
-            timer += Time.fixedDeltaTime;
-            yield return new WaitForFixedUpdate();
+            timer += Time.unscaledDeltaTime; // ← было fixedDeltaTime
+            yield return null; // ← было WaitForFixedUpdate
         }
 
         isDashing = false;
