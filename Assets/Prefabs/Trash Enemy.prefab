@@ -111,9 +111,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa3f7cc2d30fe164aa2c9dff1ef78a0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
-  maxHP: 30
+  maxHP: 25
   currentHP: 0
   soulsOnDeath: 1
+  isBoss: 0
+  scrapDropChance: 10
+  scrapAmount: 1
 --- !u!114 &4502582924963126133
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,9 +129,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3a7f199e69a8fe41be389a8efeb0ada, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
-  moveSpeed: 2
+  moveSpeed: 6
   damage: 10
-  attackCooldown: 1
+  attackCooldown: 0.6
 --- !u!212 &5938179557459350228
 SpriteRenderer:
   serializedVersion: 2

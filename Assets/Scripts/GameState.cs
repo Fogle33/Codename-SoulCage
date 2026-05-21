@@ -7,6 +7,7 @@ public static class GameState
 
     public static event Action OnSoulsChanged;
     public static event Action OnScrapChanged;
+    public static string NextScene = "Arena2";
 
     public static void AddSouls(int amount)
     {

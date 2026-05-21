@@ -20,6 +20,10 @@ PrefabInstance:
       propertyPath: maxHP
       value: 40
       objectReference: {fileID: 0}
+    - target: {fileID: 780706990598135764, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: soulsOnDeath
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4502582924963126133, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
       propertyPath: damage
       value: 15
@@ -98,9 +102,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b700bfede360fc4ba57975c88f7227f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RangedEnemyAI
-  moveSpeed: 2
-  attackRange: 6
-  fleeRange: 3
+  moveSpeed: 5.2
+  attackRange: 10
+  fleeRange: 4
   damage: 15
-  attackCooldown: 2
+  attackCooldown: 1.2
   projectilePrefab: {fileID: 9136471876832191032, guid: cde53ab351e797147aa1d24ea197432e, type: 3}
