@@ -22,9 +22,10 @@ public class AbsorberBossAI : MonoBehaviour
     public float fieldDamage = 20f;
 
     [Header("Phase 2")]
-    public float phase2HPPercent = 0.4f;
+    public float phase2HPPercent = 0.5f;
     public float phase2FieldCooldown = 3f;
-    public float phase2MoveSpeedMultiplier = 1.3f;
+    public float phase2SpeedMultiplier = 1.8f;
+    public float dashCooldown = 3f;
 
     [HideInInspector] public bool playerInField = false;
 
@@ -32,6 +33,13 @@ public class AbsorberBossAI : MonoBehaviour
     private Rigidbody2D rb;
     private EnemyStats stats;
     private Transform[] corners;
+
+    private bool playerNear = false;
+    private bool inCorner = false;
+    private Transform currentCorner;
+    private Transform lastDashTarget;
+    private float lastDashEndTime;
+
     private Vector2 wanderTarget;
     private float lastWanderTime;
     private float lastAbsorbTime;
@@ -42,44 +50,58 @@ public class AbsorberBossAI : MonoBehaviour
     private bool isPhase2 = false;
     private GameObject currentField;
 
+    public void OnEnterCorner(Transform corner) { inCorner = true; currentCorner = corner; }
+    public void OnExitCorner() { inCorner = false; currentCorner = null; }
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         stats = GetComponent<EnemyStats>();
-
         player = GameObject.FindGameObjectWithTag("Player").transform;
 
-        GameObject[] cornerObjects = GameObject.FindGameObjectsWithTag("Corner");
-        corners = new Transform[cornerObjects.Length];
-        for (int i = 0; i < cornerObjects.Length; i++)
-            corners[i] = cornerObjects[i].transform;
+        var objs = GameObject.FindGameObjectsWithTag("Corner");
+        corners = new Transform[objs.Length];
+        for (int i = 0; i < objs.Length; i++) corners[i] = objs[i].transform;
 
         wanderTarget = rb.position;
+        Debug.Log($"[Boss] Corners: {corners.Length}");
     }
 
     void FixedUpdate()
     {
         if (player == null || isDashing) return;
 
-        float dist = Vector2.Distance(transform.position, player.position);
+        float dist = Vector2.Distance(rb.position, player.position);
+        playerNear = dist < fleeDistance;
 
-        if (dist < fleeDistance)
+        if (playerNear && !inCorner)
         {
-            Vector2 away = ((Vector2)transform.position - (Vector2)player.position).normalized;
-            rb.MovePosition(rb.position + away * moveSpeed * Time.fixedDeltaTime);
+            Transform target = GetSafestCorner();
+            Vector2 dir = target != null
+                ? ((Vector2)target.position - rb.position).normalized
+                : (rb.position - (Vector2)player.position).normalized;
+            rb.MovePosition(rb.position + dir * moveSpeed * Time.fixedDeltaTime);
         }
-        else
+        else if (!playerNear)
         {
             if (Time.time >= lastWanderTime + wanderInterval ||
                 Vector2.Distance(rb.position, wanderTarget) < 0.2f)
             {
-                wanderTarget = rb.position + Random.insideUnitCircle * wanderRadius;
+                Vector2 center = Vector2.zero;
+                Transform nearestCorner = GetNearestCorner();
+                if (nearestCorner != null)
+                {
+                    // Точка между центром и противоположной стороной от угла
+                    Vector2 awayFromCorner = (Vector2.zero - (Vector2)nearestCorner.position).normalized;
+                    center = Vector2.zero + awayFromCorner * (wanderRadius * 0.5f);
+                }
+                wanderTarget = center + Random.insideUnitCircle * wanderRadius;
                 lastWanderTime = Time.time;
             }
-
-            Vector2 wanderDir = (wanderTarget - rb.position).normalized;
-            rb.MovePosition(rb.position + wanderDir * (moveSpeed * 0.5f) * Time.fixedDeltaTime);
+            Vector2 dir = (wanderTarget - rb.position).normalized;
+            rb.MovePosition(rb.position + dir * moveSpeed * 0.5f * Time.fixedDeltaTime);
         }
+        // inCorner && playerNear — стоим, ждём рывка
     }
 
     void Update()
@@ -91,27 +113,77 @@ public class AbsorberBossAI : MonoBehaviour
 
         if (Time.time >= lastAbsorbTime + absorbInterval)
         {
-            AbsorbNearbyTrash();
+            AbsorbNearby();
             lastAbsorbTime = Time.time;
         }
 
-        float currentFieldCooldown = isPhase2 ? phase2FieldCooldown : fieldCooldown;
-        if (Time.time >= lastFieldTime + currentFieldCooldown && !isPreparing && !isDashing)
-            StartCoroutine(PrepareAndSpawnField());
+        float cd = isPhase2 ? phase2FieldCooldown : fieldCooldown;
+        if (!isPreparing && !isDashing && Time.time >= lastFieldTime + cd)
+            StartCoroutine(FieldAttackRoutine());
 
-        if (isPhase2 && Time.time >= lastDashTime + 5f && !isDashing && !isPreparing)
-            StartCoroutine(DashToCorner());
+        if (!isDashing && !isPreparing &&
+    playerNear && inCorner && Time.time >= lastDashTime + dashCooldown)
+            StartCoroutine(DashToFarthestCorner());
     }
 
     void EnterPhase2()
     {
         isPhase2 = true;
-        moveSpeed *= phase2MoveSpeedMultiplier;
+        moveSpeed *= phase2SpeedMultiplier;
     }
 
-    void AbsorbNearbyTrash()
+    Transform GetNearestCorner()
     {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, absorbRadius);
+        if (corners == null || corners.Length == 0) return null;
+        Transform nearest = null;
+        float min = float.MaxValue;
+        foreach (var c in corners)
+        {
+            if (c == lastDashTarget && Time.time - lastDashEndTime < dashCooldown) continue;
+            float d = Vector2.Distance(rb.position, c.position);
+            if (d < min) { min = d; nearest = c; }
+        }
+        return nearest;
+    }
+    Transform GetSafestCorner()
+    {
+        if (corners == null || corners.Length == 0) return null;
+        Transform best = null;
+        float bestScore = float.MinValue;
+
+        Vector2 toPlayer = ((Vector2)player.position - rb.position).normalized;
+
+        foreach (var c in corners)
+        {
+            if (c == lastDashTarget && Time.time - lastDashEndTime < dashCooldown) continue;
+            Vector2 toCorner = ((Vector2)c.position - rb.position).normalized;
+            float dot = Vector2.Dot(toCorner, toPlayer);
+            float dist = Vector2.Distance(rb.position, c.position);
+            // dot = -1: угол строго за спиной у игрока = лучший
+            // dist штраф небольшой чтобы не бежал в самый дальний угол
+            float score = -dot - dist * 0.05f;
+            if (score > bestScore) { bestScore = score; best = c; }
+        }
+        return best;
+    }
+    Transform GetNearestCornerExcluding(Transform exclude)
+    {
+        if (corners == null || corners.Length == 0) return null;
+        Transform nearest = null;
+        float min = float.MaxValue;
+        foreach (var c in corners)
+        {
+            if (c == exclude) continue;
+            if (c == lastDashTarget && Time.time - lastDashEndTime < dashCooldown) continue;
+            float d = Vector2.Distance(rb.position, c.position);
+            if (d < min) { min = d; nearest = c; }
+        }
+        return nearest;
+    }
+
+    void AbsorbNearby()
+    {
+        var hits = Physics2D.OverlapCircleAll(transform.position, absorbRadius);
         foreach (var hit in hits)
         {
             if (hit.CompareTag("Enemy") && hit.gameObject != gameObject)
@@ -122,82 +194,84 @@ public class AbsorberBossAI : MonoBehaviour
         }
     }
 
-    IEnumerator PrepareAndSpawnField()
+    IEnumerator FieldAttackRoutine()
     {
         isPreparing = true;
         playerInField = false;
 
-        if (preAttackDelay > 0f)
-            yield return new WaitForSeconds(preAttackDelay);
+        yield return new WaitForSeconds(preAttackDelay);
 
         if (fieldPrefab != null && player != null)
         {
-            Vector3 spawnPos = player.position;
-            currentField = Instantiate(fieldPrefab, spawnPos, Quaternion.identity);
-            currentField.transform.SetParent(null);
-            FieldAttack fa = currentField.GetComponent<FieldAttack>();
+            currentField = Instantiate(fieldPrefab, player.position, Quaternion.identity);
+            var fa = currentField.GetComponent<FieldAttack>();
             if (fa != null) fa.boss = this;
         }
 
         yield return new WaitForSeconds(fieldDuration);
 
-        bool hitPlayer = false;
+        bool hit = false;
         if (currentField != null)
         {
-            Collider2D col = currentField.GetComponent<Collider2D>();
-            if (col != null && player != null)
-            {
-                Collider2D playerCol = player.GetComponent<Collider2D>();
-                if (playerCol != null)
-                    hitPlayer = col.bounds.Intersects(playerCol.bounds);
-            }
-        }
-
-        if (currentField != null)
-        {
+            var col = currentField.GetComponent<Collider2D>();
+            var pCol = player?.GetComponent<Collider2D>();
+            if (col != null && pCol != null)
+                hit = col.bounds.Intersects(pCol.bounds);
             Destroy(currentField);
             currentField = null;
         }
 
-        if (hitPlayer)
-            player.GetComponent<PlayerStats>()?.TakeDamage(fieldDamage);
+        if (hit) player?.GetComponent<PlayerStats>()?.TakeDamage(fieldDamage);
 
         lastFieldTime = Time.time;
         isPreparing = false;
     }
 
-    IEnumerator DashToCorner()
+    IEnumerator DashToFarthestCorner()
     {
-        if (corners == null || corners.Length == 0) yield break;
-
         isDashing = true;
         lastDashTime = Time.time;
 
-        Transform bestCorner = corners[0];
-        float bestDist = 0f;
-        foreach (var corner in corners)
+        var col = GetComponent<Collider2D>();
+        if (col) col.enabled = false;
+
+        Transform target = null;
+        float max = 0f;
+        foreach (var c in corners)
         {
-            float d = Vector2.Distance(corner.position, player.position);
-            if (d > bestDist) { bestDist = d; bestCorner = corner; }
+            if (c == currentCorner) continue;
+            float d = Vector2.Distance(rb.position, c.position);
+            if (d > max) { max = d; target = c; }
         }
 
-        Vector2 dashDir = ((Vector2)bestCorner.position - rb.position).normalized;
-        float t = 0f;
-        while (t < 0.5f)
+        if (target == null)
         {
-            rb.MovePosition(rb.position + dashDir * 12f * Time.fixedDeltaTime);
+            if (col) col.enabled = true;
+            isDashing = false;
+            yield break;
+        }
+
+        Vector2 dir = ((Vector2)target.position - rb.position).normalized;
+        float timeout = 1.5f;
+        float t = 0f;
+        while (Vector2.Distance(rb.position, target.position) > 0.5f && t < timeout)
+        {
+            rb.MovePosition(rb.position + dir * 25f * Time.fixedDeltaTime);
             t += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
 
+        lastDashTarget = target;
+        lastDashEndTime = Time.time;
+        if (col) col.enabled = true;
         isDashing = false;
     }
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, absorbRadius);
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, fleeDistance);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, absorbRadius);
     }
 }

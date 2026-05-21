@@ -153,15 +153,22 @@ public class WaveManager : MonoBehaviour
     public void OnBossDefeated()
     {
         if (isFinalArena)
-        {
-            FindObjectOfType<PlayerStats>()?.TakeDamage(9999f);
-        }
+            StartCoroutine(FinalSequence());
         else
         {
+            GameState.NextScene = nextScene;
             var t = FindObjectOfType<SceneTransition>();
-            if (t != null) t.LoadScene(nextScene);
-            else UnityEngine.SceneManagement.SceneManager.LoadScene(nextScene);
+            if (t != null) t.LoadScene("PurchaseScreen");
+            else UnityEngine.SceneManagement.SceneManager.LoadScene("PurchaseScreen");
         }
+    }
+
+    IEnumerator FinalSequence()
+    {
+        yield return new WaitForSeconds(2f);
+        var t = FindObjectOfType<SceneTransition>();
+        if (t != null) t.LoadScene("Hub");
+        else UnityEngine.SceneManagement.SceneManager.LoadScene("Hub");
     }
 
     public void NotifyEnemyDestroyed(GameObject enemy) { }

@@ -33,6 +33,7 @@ public class PlayerStats : MonoBehaviour
 
     void Die()
     {
+        GetComponent<PlayerCombat>()?.ForceStopAttack();
         DeathScreen.Instance?.Show();
     }
 }

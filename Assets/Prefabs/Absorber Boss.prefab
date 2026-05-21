@@ -117,9 +117,6 @@ MonoBehaviour:
   isBoss: 1
   scrapDropChance: 100
   scrapAmount: 8
-  damage: 10
-  attackCooldown: 1
-  importance: 1
 --- !u!114 &6635125024426507239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,8 +129,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0402ffed8b689b9418dbaf25a8025a7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbsorberBossAI
-  moveSpeed: 3
-  fleeDistance: 4
+  moveSpeed: 4
+  fleeDistance: 6
   wanderRadius: 2
   wanderInterval: 2
   absorbRadius: 3
@@ -146,7 +143,8 @@ MonoBehaviour:
   fieldDamage: 20
   phase2HPPercent: 0.4
   phase2FieldCooldown: 3
-  phase2MoveSpeedMultiplier: 1.3
+  phase2SpeedMultiplier: 1.8
+  dashCooldown: 3
   playerInField: 0
 --- !u!212 &1680067205224388381
 SpriteRenderer:

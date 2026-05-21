@@ -11,10 +11,6 @@ public class EnemyStats : MonoBehaviour
     [Range(0, 100)] public int scrapDropChance = 10;
     public int scrapAmount = 1;
 
-    [Header("Для баланса (WaveManager)")]
-    public float damage = 10f;
-    public float attackCooldown = 1f;
-    public float importance = 1f;
     private WaveManager waveManager;
 
     void Start()
