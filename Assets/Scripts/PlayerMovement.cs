@@ -74,15 +74,20 @@ public class PlayerMovement : MonoBehaviour
         isDashing = true;
         canDash = false;
 
+        var col = GetComponent<Collider2D>();
+        if (col) col.enabled = false; // неуязвимость + проход сквозь
+
         Vector2 dashDirection = lastMoveDirection;
         float timer = 0f;
 
         while (timer < dashDuration)
         {
             rb.linearVelocity = dashDirection * dashSpeed;
-            timer += Time.unscaledDeltaTime; // ← было fixedDeltaTime
-            yield return null; // ← было WaitForFixedUpdate
+            timer += Time.unscaledDeltaTime;
+            yield return null;
         }
+
+        if (col) col.enabled = true;
 
         isDashing = false;
         cooldownTimer = dashCooldown;
