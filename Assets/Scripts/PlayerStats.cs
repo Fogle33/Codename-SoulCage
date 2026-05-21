@@ -9,7 +9,13 @@ public class PlayerStats : MonoBehaviour
     void Awake()
     {
         currentHP = maxHP;
+        if (PlayerUpgrades.HealOnNextSpawn)
+        {
+            currentHP = maxHP;
+            PlayerUpgrades.HealOnNextSpawn = false;
+        }
         ui = FindObjectOfType<ArenaUI>();
+        if (ui) ui.UpdateHP(currentHP, maxHP);
     }
 
     public void TakeDamage(float amount)

@@ -14,16 +14,38 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 lastMoveDirection = Vector2.down;
     private bool isDashing = false;
     private bool canDash = true;
+    private float cooldownTimer = 0f;
+
+    public float DashCooldownProgress
+    {
+        get
+        {
+            if (canDash) return 0f;
+            if (isDashing) return 1f;
+            return Mathf.Clamp01(cooldownTimer / dashCooldown);
+        }
+    }
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        moveSpeed += PlayerUpgrades.SpeedBonus;
     }
 
     void Update()
     {
         if (!isDashing)
             rb.linearVelocity = moveInput * moveSpeed;
+
+        if (!canDash && !isDashing)
+        {
+            cooldownTimer -= Time.deltaTime;
+            if (cooldownTimer <= 0f)
+            {
+                cooldownTimer = 0f;
+                canDash = true;
+            }
+        }
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -55,8 +77,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         isDashing = false;
-
-        yield return new WaitForSeconds(dashCooldown);
-        canDash = true;
+        cooldownTimer = dashCooldown;
     }
 }

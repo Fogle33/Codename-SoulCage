@@ -16,6 +16,18 @@ PrefabInstance:
       propertyPath: maxHP
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 780706990598135764, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: scrapAmount
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 780706990598135764, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: soulsOnDeath
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 780706990598135764, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
+      propertyPath: scrapDropChance
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 4502582924963126133, guid: 8809bc3d1d37d0f41a907cf438ce6ef2, type: 3}
       propertyPath: damage
       value: 20

@@ -7,6 +7,14 @@ public class EnemyStats : MonoBehaviour
     public int soulsOnDeath = 1;
     public bool isBoss = false;
 
+    [Header("Scrap drop")]
+    [Range(0, 100)] public int scrapDropChance = 10;
+    public int scrapAmount = 1;
+
+    [Header("Для баланса (WaveManager)")]
+    public float damage = 10f;
+    public float attackCooldown = 1f;
+    public float importance = 1f;
     private WaveManager waveManager;
 
     void Start()
@@ -36,13 +44,19 @@ public class EnemyStats : MonoBehaviour
 
     void Die()
     {
-        if (isBoss)
-            BossHealthBar.Instance?.Hide();
+        GameState.AddSouls(soulsOnDeath);
+        if (Random.Range(0, 100) < scrapDropChance)
+            GameState.AddScrap(scrapAmount);
 
-        if (waveManager != null)
+        if (isBoss)
         {
-            waveManager.OnEnemyDied();
-            waveManager.NotifyEnemyDestroyed(gameObject);
+            BossHealthBar.Instance?.Hide();
+            waveManager?.OnBossDefeated();
+        }
+        else
+        {
+            waveManager?.OnEnemyDied();
+            waveManager?.NotifyEnemyDestroyed(gameObject);
         }
 
         Destroy(gameObject);

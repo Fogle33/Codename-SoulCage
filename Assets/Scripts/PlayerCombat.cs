@@ -6,9 +6,23 @@ public class PlayerCombat : MonoBehaviour
 {
     public GameObject meleeHitbox;
     public float attackCooldown = 0.5f;
+    public float attackActiveDuration = 0.2f;
+
     private bool canAttack = true;
-    private bool isDisabled = false; // Новый флаг
+    private bool isAttacking = false;
+    private bool isDisabled = false;
+    private float cooldownTimer = 0f;
     private Vector2 mousePos;
+
+    public float AttackCooldownProgress
+    {
+        get
+        {
+            if (canAttack) return 0f;
+            if (isAttacking) return 1f;
+            return Mathf.Clamp01(cooldownTimer / attackCooldown);
+        }
+    }
 
     void Update()
     {
@@ -20,11 +34,21 @@ public class PlayerCombat : MonoBehaviour
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         meleeHitbox.transform.rotation = Quaternion.Euler(0f, 0f, angle);
         meleeHitbox.transform.localPosition = direction * 0.8f;
+
+        if (!canAttack && !isAttacking)
+        {
+            cooldownTimer -= Time.unscaledDeltaTime;
+            if (cooldownTimer <= 0f)
+            {
+                cooldownTimer = 0f;
+                canAttack = true;
+            }
+        }
     }
 
     public void Attack(InputAction.CallbackContext context)
     {
-        if (isDisabled) return; // Блокируем атаку
+        if (isDisabled) return;
         if (context.performed && canAttack)
             StartCoroutine(AttackCoroutine());
     }
@@ -32,14 +56,14 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator AttackCoroutine()
     {
         canAttack = false;
+        isAttacking = true;
         meleeHitbox.SetActive(true);
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return new WaitForSecondsRealtime(attackActiveDuration);
 
         meleeHitbox.SetActive(false);
-
-        yield return new WaitForSecondsRealtime(attackCooldown);
-        canAttack = true;
+        isAttacking = false;
+        cooldownTimer = attackCooldown;
     }
 
     public void ForceStopAttack()
@@ -49,6 +73,8 @@ public class PlayerCombat : MonoBehaviour
         if (meleeHitbox != null)
             meleeHitbox.SetActive(false);
         canAttack = true;
+        isAttacking = false;
+        cooldownTimer = 0f;
     }
 
     void OnDisable()

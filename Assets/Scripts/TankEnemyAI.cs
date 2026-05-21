@@ -13,6 +13,7 @@ public class TankEnemyAI : MonoBehaviour
     private Transform player;
     private Rigidbody2D rb;
     private float lastAttackTime;
+    private float lastChargeTime;
     private bool isCharging = false;
 
     void Start()
@@ -32,14 +33,14 @@ public class TankEnemyAI : MonoBehaviour
     {
         if (player == null) return;
         float dist = Vector2.Distance(transform.position, player.position);
-        if (dist < chargeDistance && Time.time >= lastAttackTime + attackCooldown && !isCharging)
+        if (dist < chargeDistance && Time.time >= lastChargeTime + attackCooldown && !isCharging)
             StartCoroutine(Charge());
     }
 
     IEnumerator Charge()
     {
         isCharging = true;
-        lastAttackTime = Time.time;
+        lastChargeTime = Time.time;
         Vector2 chargeDir = ((Vector2)player.position - rb.position).normalized;
         float timer = 0f;
         while (timer < chargeDuration)
